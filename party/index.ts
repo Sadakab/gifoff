@@ -212,6 +212,7 @@ export default class GifGameRoom implements Party.Server {
     player.hand.push(makeMockGif(Math.floor(Math.random() * 100)));
 
     this.state.round.submissions.push({ playerId: msg.playerId, gif: msg.gif });
+    this.state.round.submittedPlayerIds.push(msg.playerId);
 
     const nonJudgePlayers = this.state.players.filter(
       (p) => p.connected && p.id !== this.state.round!.judgeId
@@ -320,6 +321,7 @@ export default class GifGameRoom implements Party.Server {
       judgeId: judge.id,
       prompt,
       submissions: [],
+      submittedPlayerIds: [],
       revealIndex: -1,
       winnerId: null,
     };

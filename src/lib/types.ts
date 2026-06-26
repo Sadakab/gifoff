@@ -34,6 +34,8 @@ export interface RoundState {
   prompt: string;
   /** Shuffled, playerId stripped when sent to clients */
   submissions: Submission[];
+  /** Which players have submitted this round — safe to broadcast */
+  submittedPlayerIds: string[];
   revealIndex: number;
   winnerId: string | null;
 }

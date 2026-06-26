@@ -60,7 +60,7 @@ export default function PlayPage() {
         <HandView
           prompt={state.round.prompt}
           hand={me.hand}
-          hasSubmitted={state.round.submissions.some((s) => !s.playerId && me.hand.every((g) => g.id !== s.gif.id))}
+          hasSubmitted={state.round.submittedPlayerIds.includes(playerId)}
           onSubmit={(gif) => send({ type: "submit_gif", playerId, gif })}
         />
       );
