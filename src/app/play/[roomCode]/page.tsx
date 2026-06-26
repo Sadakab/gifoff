@@ -153,7 +153,7 @@ function LobbyView({
   connectedCount: number;
   onStart: () => void;
 }) {
-  const canStart = connectedCount >= 3;
+  const canStart = connectedCount >= 2;
   const tvUrl = typeof window !== "undefined"
     ? `${window.location.origin}/tv/${roomCode}`
     : `/tv/${roomCode}`;
@@ -197,7 +197,7 @@ function LobbyView({
             </button>
             {!canStart && (
               <p className="text-gray-500 text-sm text-center mt-2">
-                Need at least 3 players ({connectedCount} joined)
+                Need at least 2 players ({connectedCount} joined)
               </p>
             )}
           </>

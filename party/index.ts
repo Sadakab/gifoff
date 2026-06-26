@@ -11,7 +11,7 @@ import { PROMPTS } from "../src/lib/prompts";
 
 const HAND_SIZE = 7;
 const DEFAULT_TOTAL_ROUNDS = 7;
-const MIN_PLAYERS = 3;
+const MIN_PLAYERS = 2;
 
 // ── Mock GIF hand generation (replaced by Klipy in step 2) ─────────────────
 
