@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GifOff
 
-## Getting Started
+Jackbox-style GIF party game. Players join on their phones, submit GIFs to match a prompt, and a rotating judge picks the winner.
 
-First, run the development server:
+## Running locally
+
+You need two processes running at the same time:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Option A — one command (recommended)
+npm run dev:all
+
+# Option B — two terminals
+npm run party   # PartyKit dev server → localhost:1999
+npm run dev     # Next.js → localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open:
+- **TV view** (big screen): `http://localhost:3000/tv/TEST`
+- **Phone view** (players): `http://localhost:3000` → Create or Join room `TEST`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Testing with multiple "players" on one machine
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+All tabs at the same origin share `localStorage`, which is where the `playerId` lives. If you open three tabs to simulate three players, they'll all see themselves as the *same* player reconnecting — only one player will ever appear in the lobby.
 
-## Learn More
+**Use separate browser contexts instead:**
+- Chrome + Firefox + Safari simultaneously
+- Or multiple incognito/private windows (each gets isolated storage)
+- Or Chrome profiles
 
-To learn more about Next.js, take a look at the following resources:
+## Environment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Copy `.env.local.example` to `.env.local` (or just edit `.env.local` directly):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+NEXT_PUBLIC_PARTYKIT_HOST=localhost:1999   # local dev
+NEXT_PUBLIC_KLIPY_API_KEY=                # add after getting key at klipy.com/developers
+```
 
-## Deploy on Vercel
+## Build order
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [x] Step 1 — PartyKit state machine + Next.js routes (mock GIF placeholders)
+- [ ] Step 2 — Klipy integration (real GIF hands)
+- [ ] Step 3 — Phone UI polish
+- [ ] Step 4 — TV UI polish
+- [ ] Step 5 — Edge cases (disconnect, host leave, judge drop, <3 players mid-round)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deploying
+
+```bash
+# Frontend → Vercel
+vercel deploy
+
+# PartyKit room → Cloudflare
+npx partykit deploy
+```
+
+Update `NEXT_PUBLIC_PARTYKIT_HOST` in your Vercel env vars to the deployed PartyKit host after deployment.

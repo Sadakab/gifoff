@@ -21,12 +21,11 @@ const MOCK_COLORS = [
 ];
 
 function makeMockGif(index: number): GifRef {
-  const color = MOCK_COLORS[index % MOCK_COLORS.length];
-  const encoded = encodeURIComponent(color);
+  const color = MOCK_COLORS[index % MOCK_COLORS.length].replace("#", "");
   return {
     id: `mock-${index}-${Math.random().toString(36).slice(2, 8)}`,
-    previewUrl: `https://via.placeholder.com/200x150/${encoded.replace("#", "")}/ffffff?text=GIF+${index + 1}`,
-    gifUrl: `https://via.placeholder.com/480x360/${encoded.replace("#", "")}/ffffff?text=GIF+${index + 1}`,
+    previewUrl: `https://placehold.co/200x150/${color}/ffffff?text=GIF+${index + 1}`,
+    gifUrl: `https://placehold.co/480x360/${color}/ffffff?text=GIF+${index + 1}`,
     title: `Mock GIF ${index + 1}`,
   };
 }
