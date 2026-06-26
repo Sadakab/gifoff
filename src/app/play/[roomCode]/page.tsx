@@ -154,13 +154,29 @@ function LobbyView({
   onStart: () => void;
 }) {
   const canStart = connectedCount >= 3;
+  const tvUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/tv/${roomCode}`
+    : `/tv/${roomCode}`;
+
   return (
     <Screen>
       <div className="w-full max-w-xs">
         <p className="text-gray-400 text-sm text-center mb-1">Room code</p>
-        <div className="text-5xl font-black text-white text-center tracking-widest mb-8">
+        <div className="text-5xl font-black text-white text-center tracking-widest mb-4">
           {roomCode}
         </div>
+
+        {isHost && (
+          <a
+            href={tvUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block text-center text-xs text-purple-400 underline underline-offset-2 mb-6"
+          >
+            Open TV screen →
+          </a>
+        )}
+
         <ul className="space-y-2 mb-8">
           {players
             .filter((p) => p.connected)
