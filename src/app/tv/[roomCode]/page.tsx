@@ -222,12 +222,12 @@ function TVRevealing({
       ) : currentGif ? (
         <>
           <div className="flex-1 flex items-center justify-center">
-            <div className="bg-cream border-8 border-ink rounded-2xl overflow-hidden">
+            <div className="bg-cream border-4 border-ink rounded-2xl overflow-hidden w-[min(60vh,70vw)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={currentGif.gifUrl}
                 alt="Submitted GIF"
-                className="max-h-[70vh] w-auto max-w-[85vw] object-contain"
+                className="w-full aspect-square object-cover"
               />
             </div>
           </div>
