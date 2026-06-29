@@ -208,8 +208,8 @@ function TVRevealing({
   const currentGif = revealIndex >= 0 ? submissions[revealIndex]?.gif : null;
 
   return (
-    <div className="min-h-screen bg-ink flex flex-col p-12">
-      <p className="font-sans font-semibold text-cream text-7xl leading-tight text-center max-w-5xl mx-auto mb-8">
+    <div className="h-screen bg-ink flex flex-col p-12 overflow-hidden">
+      <p className="shrink-0 font-sans font-semibold text-cream text-7xl leading-tight text-center max-w-5xl mx-auto mb-8">
         {prompt}
       </p>
 
@@ -221,17 +221,17 @@ function TVRevealing({
         </div>
       ) : currentGif ? (
         <>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="bg-cream border-4 border-ink rounded-2xl overflow-hidden w-[min(60vh,70vw)]">
+          <div className="flex-1 min-h-0 flex items-center justify-center">
+            <div className="bg-cream border-4 border-ink rounded-2xl overflow-hidden aspect-square max-h-full max-w-[70vw]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={currentGif.gifUrl}
                 alt="Submitted GIF"
-                className="w-full aspect-square object-cover"
+                className="w-full h-full object-cover"
               />
             </div>
           </div>
-          <p className="font-display text-cream/40 text-2xl text-center mt-8">
+          <p className="shrink-0 font-display text-cream/40 text-2xl text-center mt-8">
             {revealIndex + 1} of {totalSubmissions}
           </p>
         </>
