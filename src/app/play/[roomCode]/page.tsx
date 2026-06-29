@@ -274,7 +274,7 @@ function HandView({
               <img
                 src={gif.previewUrl}
                 alt={gif.title ?? "GIF"}
-                className="w-full h-32 object-cover"
+                className="w-full h-48 object-cover"
                 loading="lazy"
               />
             </button>
@@ -404,7 +404,7 @@ function JudgingView({
               <img
                 src={s.gif.previewUrl}
                 alt="Submitted GIF"
-                className="w-full h-32 object-cover"
+                className="w-full h-48 object-cover"
                 loading="lazy"
               />
             </button>

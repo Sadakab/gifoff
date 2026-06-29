@@ -9,7 +9,7 @@ import type {
 } from "../src/lib/types";
 import { PROMPTS } from "../src/lib/prompts";
 
-const HAND_SIZE = 7;
+const HAND_SIZE = 6;
 const DEFAULT_TOTAL_ROUNDS = 7;
 const MIN_PLAYERS = 2;
 const KLIPY_BASE = "https://api.klipy.com/api/v1";
