@@ -12,36 +12,82 @@ import { PROMPTS } from "../src/lib/prompts";
 const HAND_SIZE = 7;
 const DEFAULT_TOTAL_ROUNDS = 7;
 const MIN_PLAYERS = 2;
+const KLIPY_BASE = "https://api.klipy.com/api/v1";
 
-// ── Mock GIF hand generation (replaced by Klipy in step 2) ─────────────────
+// ── Klipy API ────────────────────────────────────────────────────────────────
 
-const MOCK_COLORS = [
-  "#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#C77DFF",
-  "#FF9A3C", "#00C9A7", "#FF6FD8", "#845EC2", "#00B8A9",
-];
+interface KlipySizeSet {
+  gif: { url: string; width: number; height: number };
+  webp: { url: string };
+  jpg: { url: string };
+}
 
-function makeMockGif(index: number): GifRef {
-  const color = MOCK_COLORS[index % MOCK_COLORS.length].replace("#", "");
+interface KlipyGif {
+  id: number;
+  slug: string;
+  title: string;
+  file: { hd: KlipySizeSet; md: KlipySizeSet; sm: KlipySizeSet; xs: KlipySizeSet };
+  blur_preview: string;
+}
+
+interface KlipyResponse {
+  result: boolean;
+  data: { data: KlipyGif[]; has_next: boolean };
+}
+
+function klipyToRef(gif: KlipyGif): GifRef {
   return {
-    id: `mock-${index}-${Math.random().toString(36).slice(2, 8)}`,
-    previewUrl: `https://placehold.co/200x150/${color}/ffffff?text=GIF+${index + 1}`,
-    gifUrl: `https://placehold.co/480x360/${color}/ffffff?text=GIF+${index + 1}`,
-    title: `Mock GIF ${index + 1}`,
+    id: gif.slug,
+    previewUrl: gif.file.xs.gif.url,   // thumbnail in phone hand grid
+    gifUrl: gif.file.sm.gif.url,        // display in reveal / judge view
+    title: gif.title,
   };
 }
 
-function dealHand(): GifRef[] {
-  return Array.from({ length: HAND_SIZE }, (_, i) => makeMockGif(i));
+async function fetchGifs(apiKey: string, count: number, page: number): Promise<GifRef[]> {
+  const url = `${KLIPY_BASE}/${apiKey}/gifs/trending?per_page=${count}&page=${page}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Klipy trending fetch failed: ${res.status}`);
+  const json = await res.json() as KlipyResponse;
+  if (!json.result) throw new Error("Klipy API returned result: false");
+  return json.data.data.map(klipyToRef);
 }
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
+/**
+ * Fetch one batch large enough for all players and slice into hands.
+ * Guarantees no duplicate GIFs across players in the same round.
+ */
+async function dealAllHands(apiKey: string, numPlayers: number): Promise<GifRef[][]> {
+  const needed = HAND_SIZE * numPlayers;
+  // max per_page is 50; if needed > 50 make two calls
+  const page = Math.floor(Math.random() * 10) + 1;
+  let gifs = await fetchGifs(apiKey, Math.min(needed, 50), page);
+
+  if (gifs.length < needed) {
+    const extra = await fetchGifs(apiKey, needed - gifs.length, page + 1);
+    gifs = [...gifs, ...extra];
+  }
+
+  return Array.from({ length: numPlayers }, (_, i) =>
+    gifs.slice(i * HAND_SIZE, (i + 1) * HAND_SIZE)
+  );
+}
+
+async function fetchOneGif(apiKey: string): Promise<GifRef | null> {
+  try {
+    const page = Math.floor(Math.random() * 20) + 1;
+    const gifs = await fetchGifs(apiKey, 1, page);
+    return gifs[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function pickPrompt(usedIndices: number[]): { prompt: string; index: number } {
-  const available = PROMPTS.map((_, i) => i).filter(
-    (i) => !usedIndices.includes(i)
-  );
+  const available = PROMPTS.map((_, i) => i).filter((i) => !usedIndices.includes(i));
   if (available.length === 0) {
-    // Exhausted deck — reshuffle
     const index = Math.floor(Math.random() * PROMPTS.length);
     return { prompt: PROMPTS[index], index };
   }
@@ -70,7 +116,7 @@ function sanitizeState(state: RoomState): RoomState {
   };
 }
 
-// ── Room Server ──────────────────────────────────────────────────────────────
+// ── Room Server ───────────────────────────────────────────────────────────────
 
 export default class GifGameRoom implements Party.Server {
   private state: RoomState;
@@ -88,11 +134,10 @@ export default class GifGameRoom implements Party.Server {
   }
 
   onConnect(conn: Party.Connection) {
-    // Send current state to the newly connected socket
     conn.send(JSON.stringify({ type: "state", state: sanitizeState(this.state) } satisfies ServerMessage));
   }
 
-  onMessage(message: string, sender: Party.Connection) {
+  async onMessage(message: string, sender: Party.Connection) {
     let msg: ClientMessage;
     try {
       msg = JSON.parse(message) as ClientMessage;
@@ -101,13 +146,13 @@ export default class GifGameRoom implements Party.Server {
     }
 
     switch (msg.type) {
-      case "join":          return this.handleJoin(msg, sender);
-      case "start_game":    return this.handleStartGame(msg, sender);
-      case "submit_gif":    return this.handleSubmitGif(msg, sender);
+      case "join":              return this.handleJoin(msg, sender);
+      case "start_game":        return this.handleStartGame(msg, sender);
+      case "submit_gif":        return this.handleSubmitGif(msg, sender);
       case "judge_reveal_next": return this.handleRevealNext(msg, sender);
-      case "judge_pick":    return this.handleJudgePick(msg, sender);
-      case "next_round":    return this.handleNextRound(msg, sender);
-      case "kick_player":   return this.handleKickPlayer(msg, sender);
+      case "judge_pick":        return this.handleJudgePick(msg, sender);
+      case "next_round":        return this.handleNextRound(msg, sender);
+      case "kick_player":       return this.handleKickPlayer(msg, sender);
     }
   }
 
@@ -124,7 +169,6 @@ export default class GifGameRoom implements Party.Server {
       return;
     }
 
-    // Judge disconnected mid-round → rotate and restart round
     if (
       this.state.round &&
       player.id === this.state.round.judgeId &&
@@ -132,32 +176,30 @@ export default class GifGameRoom implements Party.Server {
         this.state.phase === "revealing" ||
         this.state.phase === "judging")
     ) {
-      this.rotateJudgeAndRestart();
+      void this.rotateJudgeAndRestart();
       return;
     }
 
     this.broadcast();
   }
 
-  // ── Message handlers ───────────────────────────────────────────────────────
+  // ── Message handlers ────────────────────────────────────────────────────────
 
   private handleJoin(
     msg: Extract<ClientMessage, { type: "join" }>,
-    conn: Party.Connection
+    _conn: Party.Connection
   ) {
     const existing = this.state.players.find((p) => p.id === msg.playerId);
 
     if (existing) {
-      // Reconnect — reuse existing slot, remap socket id → playerId via conn
       existing.connected = true;
-      // PartyKit connection id isn't the playerId; we track playerId in state
     } else {
       const isFirst = this.state.players.length === 0;
       const player: Player = {
         id: msg.playerId,
         name: msg.name.slice(0, 20).trim() || "Anonymous",
         score: 0,
-        hand: dealHand(),
+        hand: [],
         connected: true,
         isHost: isFirst,
       };
@@ -168,30 +210,42 @@ export default class GifGameRoom implements Party.Server {
     this.broadcast();
   }
 
-  private handleStartGame(
+  private async handleStartGame(
     msg: Extract<ClientMessage, { type: "start_game" }>,
-    _conn: Party.Connection
+    conn: Party.Connection
   ) {
     if (msg.playerId !== this.state.hostId) return;
     if (this.state.phase !== "lobby") return;
 
     const connectedPlayers = this.state.players.filter((p) => p.connected);
     if (connectedPlayers.length < MIN_PLAYERS) {
-      this.sendError(_conn, `Need at least ${MIN_PLAYERS} players to start.`);
+      this.sendError(conn, `Need at least ${MIN_PLAYERS} players to start.`);
       return;
     }
 
     if (msg.totalRounds) this.state.totalRounds = msg.totalRounds;
     this.state.usedPromptIndices = [];
-    this.state.players.forEach((p) => {
-      p.score = 0;
-      p.hand = dealHand();
-    });
+    connectedPlayers.forEach((p) => { p.score = 0; });
 
-    this.startRound(1, 0);
+    const apiKey = this.room.env.KLIPY_API_KEY as string | undefined;
+
+    if (apiKey) {
+      try {
+        const hands = await dealAllHands(apiKey, connectedPlayers.length);
+        connectedPlayers.forEach((p, i) => { p.hand = hands[i]; });
+      } catch (err) {
+        console.error("Klipy deal failed, starting without hands:", err);
+        connectedPlayers.forEach((p) => { p.hand = []; });
+      }
+    } else {
+      console.warn("KLIPY_API_KEY not set — hands will be empty");
+      connectedPlayers.forEach((p) => { p.hand = []; });
+    }
+
+    await this.startRound(1, 0);
   }
 
-  private handleSubmitGif(
+  private async handleSubmitGif(
     msg: Extract<ClientMessage, { type: "submit_gif" }>,
     _conn: Party.Connection
   ) {
@@ -207,13 +261,13 @@ export default class GifGameRoom implements Party.Server {
     );
     if (alreadySubmitted) return;
 
-    // Remove submitted GIF from hand, replace with a new one
+    // Remove submitted GIF from hand
     player.hand = player.hand.filter((g) => g.id !== msg.gif.id);
-    player.hand.push(makeMockGif(Math.floor(Math.random() * 100)));
 
     this.state.round.submissions.push({ playerId: msg.playerId, gif: msg.gif });
     this.state.round.submittedPlayerIds.push(msg.playerId);
 
+    // Replenish hand in the background — broadcast before awaiting
     const nonJudgePlayers = this.state.players.filter(
       (p) => p.connected && p.id !== this.state.round!.judgeId
     );
@@ -224,10 +278,20 @@ export default class GifGameRoom implements Party.Server {
     if (allSubmitted) {
       this.state.round.submissions = shuffle(this.state.round.submissions);
       this.state.phase = "revealing";
-      this.state.round.revealIndex = -1; // TV starts at -1, judge_reveal_next advances to 0
+      this.state.round.revealIndex = -1;
     }
 
     this.broadcast();
+
+    // Async replenish — player gets a fresh GIF added after the broadcast
+    const apiKey = this.room.env.KLIPY_API_KEY as string | undefined;
+    if (apiKey) {
+      const newGif = await fetchOneGif(apiKey);
+      if (newGif) {
+        player.hand.push(newGif);
+        this.broadcast();
+      }
+    }
   }
 
   private handleRevealNext(
@@ -240,8 +304,7 @@ export default class GifGameRoom implements Party.Server {
 
     this.state.round.revealIndex += 1;
 
-    const total = this.state.round.submissions.length;
-    if (this.state.round.revealIndex >= total) {
+    if (this.state.round.revealIndex >= this.state.round.submissions.length) {
       this.state.phase = "judging";
     }
 
@@ -269,7 +332,7 @@ export default class GifGameRoom implements Party.Server {
     this.broadcast();
   }
 
-  private handleNextRound(
+  private async handleNextRound(
     msg: Extract<ClientMessage, { type: "next_round" }>,
     _conn: Party.Connection
   ) {
@@ -291,9 +354,8 @@ export default class GifGameRoom implements Party.Server {
       return;
     }
 
-    const nextJudgeIndex =
-      (this.getJudgeIndex() + 1) % connectedPlayers.length;
-    this.startRound(nextRoundNumber, nextJudgeIndex);
+    const nextJudgeIndex = (this.getJudgeIndex() + 1) % connectedPlayers.length;
+    await this.startRound(nextRoundNumber, nextJudgeIndex);
   }
 
   private handleKickPlayer(
@@ -301,22 +363,20 @@ export default class GifGameRoom implements Party.Server {
     _conn: Party.Connection
   ) {
     if (msg.playerId !== this.state.hostId) return;
-    this.state.players = this.state.players.filter(
-      (p) => p.id !== msg.targetId
-    );
+    this.state.players = this.state.players.filter((p) => p.id !== msg.targetId);
     this.broadcast();
   }
 
-  // ── State transitions ──────────────────────────────────────────────────────
+  // ── State transitions ────────────────────────────────────────────────────────
 
-  private startRound(roundNumber: number, judgeIndex: number) {
+  private async startRound(roundNumber: number, judgeIndex: number) {
     const connectedPlayers = this.state.players.filter((p) => p.connected);
     const judge = connectedPlayers[judgeIndex % connectedPlayers.length];
 
     const { prompt, index } = pickPrompt(this.state.usedPromptIndices);
     this.state.usedPromptIndices.push(index);
 
-    const round: RoundState = {
+    this.state.round = {
       number: roundNumber,
       judgeId: judge.id,
       prompt,
@@ -325,20 +385,18 @@ export default class GifGameRoom implements Party.Server {
       revealIndex: -1,
       winnerId: null,
     };
-
-    this.state.round = round;
     this.state.phase = "submitting";
     this.broadcast();
   }
 
-  private rotateJudgeAndRestart() {
+  private async rotateJudgeAndRestart() {
     if (!this.state.round) return;
     const connectedPlayers = this.state.players.filter((p) => p.connected);
     const currentJudgeIndex = connectedPlayers.findIndex(
       (p) => p.id === this.state.round!.judgeId
     );
     const nextIndex = (currentJudgeIndex + 1) % connectedPlayers.length;
-    this.startRound(this.state.round.number, nextIndex);
+    await this.startRound(this.state.round.number, nextIndex);
   }
 
   private dropToLobby(reason?: string) {
@@ -350,7 +408,7 @@ export default class GifGameRoom implements Party.Server {
     this.broadcast();
   }
 
-  // ── Utilities ──────────────────────────────────────────────────────────────
+  // ── Utilities ────────────────────────────────────────────────────────────────
 
   private getJudgeIndex(): number {
     if (!this.state.round) return 0;
