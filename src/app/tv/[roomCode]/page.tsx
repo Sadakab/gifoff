@@ -208,34 +208,33 @@ function TVRevealing({
   const currentGif = revealIndex >= 0 ? submissions[revealIndex]?.gif : null;
 
   return (
-    <div className="h-screen bg-ink flex flex-col p-12 overflow-hidden">
-      <p className="shrink-0 font-sans font-semibold text-cream text-7xl leading-tight text-center max-w-5xl mx-auto mb-8">
+    <div className="h-screen bg-ink flex flex-col overflow-hidden px-16 py-[3vh]">
+      <p className="shrink-0 font-sans font-semibold text-cream text-[5vh] leading-tight text-center max-w-5xl mx-auto mb-[3vh]">
         {prompt}
       </p>
 
-      {revealIndex < 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="font-display text-cream/30 text-3xl">
+      <div className="flex-1 min-h-0 flex items-center justify-center">
+        {revealIndex < 0 ? (
+          <p className="font-display text-cream/30 text-[3vh]">
             {judgeName} is about to reveal...
           </p>
-        </div>
-      ) : currentGif ? (
-        <>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="bg-cream border-4 border-ink rounded-2xl overflow-hidden w-[min(55vh,70vw)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={currentGif.gifUrl}
-                alt="Submitted GIF"
-                className="w-full aspect-square object-cover"
-              />
-            </div>
+        ) : currentGif ? (
+          <div className="bg-cream border-4 border-ink rounded-2xl overflow-hidden w-[min(55vh,70vw)]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={currentGif.gifUrl}
+              alt="Submitted GIF"
+              className="w-full aspect-square object-cover"
+            />
           </div>
-          <p className="shrink-0 font-display text-cream/40 text-2xl text-center mt-8">
-            {revealIndex + 1} of {totalSubmissions}
-          </p>
-        </>
-      ) : null}
+        ) : null}
+      </div>
+
+      {revealIndex >= 0 && (
+        <p className="shrink-0 font-display text-cream/40 text-[2.5vh] text-center mt-[3vh]">
+          {revealIndex + 1} of {totalSubmissions}
+        </p>
+      )}
     </div>
   );
 }
