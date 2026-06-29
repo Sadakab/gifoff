@@ -209,7 +209,7 @@ function TVRevealing({
 
   return (
     <div className="min-h-screen bg-ink flex flex-col items-center justify-center gap-8 p-12">
-      <p className="font-sans font-semibold text-cream text-4xl text-center max-w-4xl leading-snug">
+      <p className="font-sans font-semibold text-cream text-7xl leading-tight text-center max-w-5xl">
         {prompt}
       </p>
 
