@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque } from "next/font/google";
+import { Bungee, Rubik } from "next/font/google";
 import "./globals.css";
 
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
-  subsets: ["latin"],
-});
+const rubik = Rubik({ weight: "variable", variable: "--font-rubik", subsets: ["latin"] });
+const bungee = Bungee({ weight: "400", variable: "--font-bungee", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "GIFPOP",
@@ -18,7 +16,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${bricolage.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${rubik.variable} ${bungee.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

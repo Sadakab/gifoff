@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useGameRoom } from "@/lib/useGameRoom";
 import type { GifRef } from "@/lib/types";
@@ -14,9 +13,11 @@ export default function TVPage() {
 
   if (!state) {
     return (
-      <TVScreen>
-        <p className="text-gray-500 text-2xl animate-pulse">Connecting to room {roomCode}...</p>
-      </TVScreen>
+      <div className="min-h-screen bg-ink flex items-center justify-center">
+        <p className="font-display text-cream/30 text-3xl uppercase animate-pulse">
+          Connecting to room {roomCode}...
+        </p>
+      </div>
     );
   }
 
@@ -28,7 +29,7 @@ export default function TVPage() {
       return <TVLobby roomCode={roomCode} players={connectedPlayers} />;
 
     case "submitting":
-      if (!state.round) return <TVScreen><p>Loading round...</p></TVScreen>;
+      if (!state.round) return <TVLoading />;
       return (
         <TVSubmitting
           prompt={state.round.prompt}
@@ -41,7 +42,7 @@ export default function TVPage() {
       );
 
     case "revealing":
-      if (!state.round) return <TVScreen><p>Loading...</p></TVScreen>;
+      if (!state.round) return <TVLoading />;
       return (
         <TVRevealing
           prompt={state.round.prompt}
@@ -53,7 +54,7 @@ export default function TVPage() {
       );
 
     case "judging":
-      if (!state.round) return <TVScreen><p>Loading...</p></TVScreen>;
+      if (!state.round) return <TVLoading />;
       return (
         <TVJudging
           prompt={state.round.prompt}
@@ -63,13 +64,8 @@ export default function TVPage() {
       );
 
     case "scoring": {
-      if (!state.round) return <TVScreen><p>Loading...</p></TVScreen>;
+      if (!state.round) return <TVLoading />;
       const winner = state.players.find((p) => p.id === state.round!.winnerId);
-      const winningSubmission = state.round.submissions.find(
-        // winnerId is not in submission (stripped), but we can show the winner gif after scoring
-        () => true
-      );
-      void winningSubmission;
       return (
         <TVScoring
           winnerName={winner?.name ?? "?"}
@@ -84,8 +80,32 @@ export default function TVPage() {
       return <TVGameOver players={state.players} />;
 
     default:
-      return <TVScreen><p className="text-gray-500">Waiting...</p></TVScreen>;
+      return <TVLoading />;
   }
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+function TVLoading() {
+  return (
+    <div className="min-h-screen bg-ink flex items-center justify-center">
+      <p className="font-display text-cream/30 text-2xl uppercase animate-pulse">Loading...</p>
+    </div>
+  );
+}
+
+function Starburst({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 200 200" className={className} xmlns="http://www.w3.org/2000/svg">
+      <polygon
+        points="100,5 114,47 148,18 139,61 182,53 153,86 195,100 153,114 182,148 139,139 148,182 114,153 100,195 86,153 53,182 61,139 18,148 47,114 5,100 47,86 18,53 61,61 53,18 86,47"
+        fill="#FFC83D"
+        stroke="#14151A"
+        strokeWidth="4"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 }
 
 // ── TV Phases ──────────────────────────────────────────────────────────────
@@ -98,25 +118,28 @@ function TVLobby({
   players: { id: string; name: string }[];
 }) {
   return (
-    <TVScreen>
-      <div className="text-center">
-        <p className="text-gray-400 text-2xl mb-2">Join at gifpop.app • room code</p>
-        <div className="text-[12rem] font-black text-white leading-none tracking-widest mb-12">
-          {roomCode}
-        </div>
-        {players.length === 0 ? (
-          <p className="text-gray-600 text-2xl">Waiting for players to join...</p>
-        ) : (
-          <div className="flex flex-wrap justify-center gap-4">
-            {players.map((p) => (
-              <div key={p.id} className="bg-gray-800 rounded-2xl px-6 py-3 text-white text-2xl font-bold">
-                {p.name}
-              </div>
-            ))}
-          </div>
-        )}
+    <div className="min-h-screen bg-ink flex flex-col items-center justify-center p-12">
+      <p className="font-sans text-cream/30 text-2xl uppercase tracking-widest mb-4">
+        gifpop.app · room code
+      </p>
+      <div className="font-display text-golden text-[12rem] leading-none tracking-widest mb-16">
+        {roomCode}
       </div>
-    </TVScreen>
+      {players.length === 0 ? (
+        <p className="font-sans text-cream/30 text-2xl">Waiting for players to join...</p>
+      ) : (
+        <div className="flex flex-wrap justify-center gap-4">
+          {players.map((p) => (
+            <div
+              key={p.id}
+              className="bg-cream border-4 border-ink rounded-2xl px-8 py-4 font-display text-ink text-2xl uppercase"
+            >
+              {p.name}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -136,29 +159,36 @@ function TVSubmitting({
   totalRounds: number;
 }) {
   return (
-    <TVScreen>
-      <div className="text-center max-w-4xl px-8">
-        <p className="text-gray-500 text-xl mb-4">
-          Round {roundNumber}/{totalRounds} · Judge: <span className="text-purple-400 font-bold">{judgeName}</span>
+    <div className="min-h-screen flex flex-col">
+      {/* Prompt zone — Hot Pink */}
+      <div className="flex-1 bg-hotpink border-b-8 border-ink flex flex-col items-center justify-center px-16 py-12">
+        <p className="font-sans text-ink/50 text-xl uppercase tracking-widest mb-6">
+          Round {roundNumber}/{totalRounds} · Judge:{" "}
+          <span className="font-display text-ink">{judgeName}</span>
         </p>
-        <p className="text-white text-6xl font-black leading-tight mb-16">{prompt}</p>
-        <div className="flex items-center justify-center gap-4">
-          <div className="flex gap-2">
-            {Array.from({ length: totalSubmitters }).map((_, i) => (
-              <div
-                key={i}
-                className={`w-8 h-8 rounded-full transition-colors duration-300 ${
-                  i < submittedCount ? "bg-purple-500" : "bg-gray-700"
-                }`}
-              />
-            ))}
-          </div>
-          <p className="text-gray-400 text-xl">
-            {submittedCount}/{totalSubmitters} submitted
-          </p>
-        </div>
+        <p className="font-banner text-ink text-7xl leading-tight uppercase text-center max-w-5xl">
+          {prompt}
+        </p>
       </div>
-    </TVScreen>
+
+      {/* Status zone — Ink */}
+      <div className="bg-ink flex items-center justify-center gap-8 px-16 py-8">
+        <div className="flex gap-3">
+          {Array.from({ length: totalSubmitters }).map((_, i) => (
+            <div
+              key={i}
+              className={`w-10 h-10 rounded-full border-4 border-cream transition-colors ${
+                i < submittedCount ? "bg-cream" : "bg-transparent"
+              }`}
+            />
+          ))}
+        </div>
+        <p className="font-display text-cream text-3xl">
+          {submittedCount}/{totalSubmitters}
+        </p>
+        <p className="font-sans text-cream/40 text-xl">submitted</p>
+      </div>
+    </div>
   );
 }
 
@@ -178,32 +208,31 @@ function TVRevealing({
   const currentGif = revealIndex >= 0 ? submissions[revealIndex]?.gif : null;
 
   return (
-    <TVScreen>
-      <div className="flex flex-col items-center gap-8 w-full max-w-4xl px-8">
-        <p className="text-gray-400 text-2xl text-center">{prompt}</p>
-        {revealIndex < 0 ? (
-          <div className="text-center">
-            <p className="text-purple-400 font-bold text-2xl">
-              {judgeName} is about to reveal the GIFs...
-            </p>
+    <div className="min-h-screen bg-ink flex flex-col items-center justify-center gap-8 p-12">
+      <p className="font-banner text-cream text-4xl uppercase text-center max-w-4xl leading-snug">
+        {prompt}
+      </p>
+
+      {revealIndex < 0 ? (
+        <p className="font-display text-cream/30 text-3xl">
+          {judgeName} is about to reveal...
+        </p>
+      ) : currentGif ? (
+        <>
+          <div className="bg-cream border-8 border-ink rounded-2xl overflow-hidden flex items-center justify-center max-h-[55vh]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={currentGif.gifUrl}
+              alt="Submitted GIF"
+              className="max-h-[55vh] max-w-full object-contain"
+            />
           </div>
-        ) : currentGif ? (
-          <>
-            <div className="rounded-3xl overflow-hidden max-h-[55vh] flex items-center justify-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={currentGif.gifUrl}
-                alt="Submitted GIF"
-                className="max-h-[55vh] max-w-full object-contain"
-              />
-            </div>
-            <p className="text-gray-500 text-xl">
-              {revealIndex + 1} of {totalSubmissions}
-            </p>
-          </>
-        ) : null}
-      </div>
-    </TVScreen>
+          <p className="font-display text-cream/40 text-2xl">
+            {revealIndex + 1} of {totalSubmissions}
+          </p>
+        </>
+      ) : null}
+    </div>
   );
 }
 
@@ -217,27 +246,29 @@ function TVJudging({
   judgeName: string;
 }) {
   return (
-    <TVScreen>
-      <div className="w-full max-w-6xl px-8">
-        <p className="text-gray-400 text-2xl text-center mb-4">{prompt}</p>
-        <p className="text-purple-400 font-bold text-2xl text-center mb-8">
-          {judgeName} is choosing their favorite...
-        </p>
-        <div className="grid grid-cols-4 gap-4">
+    <div className="min-h-screen bg-ink flex flex-col p-12">
+      <p className="font-banner text-hotpink text-5xl uppercase text-center mb-2 leading-none">
+        {judgeName} is choosing...
+      </p>
+      <p className="font-sans text-cream/30 text-xl uppercase tracking-wider text-center mb-8">
+        {prompt}
+      </p>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 max-w-6xl w-full">
           {submissions.map((s, i) => (
-            <div key={i} className="rounded-2xl overflow-hidden">
+            <div key={i} className="bg-cream border-4 border-ink rounded-2xl overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={s.gif.previewUrl}
                 alt="Submitted GIF"
-                className="w-full h-40 object-cover"
+                className="w-full h-44 object-cover"
                 loading="lazy"
               />
             </div>
           ))}
         </div>
       </div>
-    </TVScreen>
+    </div>
   );
 }
 
@@ -254,59 +285,59 @@ function TVScoring({
 }) {
   const sorted = [...players].sort((a, b) => b.score - a.score);
   return (
-    <TVScreen>
-      <div className="text-center w-full max-w-3xl px-8">
-        <p className="text-gray-500 text-xl mb-2">Round {roundNumber} of {totalRounds}</p>
-        <p className="text-white text-5xl font-black mb-2">
-          <span className="text-yellow-400">{winnerName}</span> wins this round!
-        </p>
-        <div className="mt-10 grid grid-cols-2 gap-3">
-          {sorted.map((p, i) => (
-            <div
-              key={p.id}
-              className="flex justify-between bg-gray-800 rounded-2xl px-6 py-4"
-            >
-              <span className="text-white text-2xl font-bold">
-                {i === 0 ? "👑 " : ""}{p.name}
-              </span>
-              <span className="text-purple-400 text-2xl font-black">{p.score}</span>
-            </div>
-          ))}
+    <div className="min-h-screen bg-golden flex flex-col items-center justify-center p-12 gap-10">
+      {/* Starburst winner badge */}
+      <div className="relative flex items-center justify-center w-80 h-80">
+        <Starburst className="absolute inset-0 w-full h-full" />
+        <div className="relative z-10 text-center px-8">
+          <p className="font-display text-ink text-6xl leading-none">WINNER!</p>
+          <p className="font-banner text-ink text-3xl uppercase mt-2 leading-none">{winnerName}</p>
         </div>
       </div>
-    </TVScreen>
+
+      <p className="font-sans text-ink/40 text-xl uppercase tracking-widest">
+        Round {roundNumber} of {totalRounds}
+      </p>
+
+      {/* Scoreboard */}
+      <div className="grid grid-cols-2 gap-3 max-w-3xl w-full">
+        {sorted.map((p, i) => (
+          <div
+            key={p.id}
+            className="flex justify-between items-center bg-cream border-4 border-ink rounded-2xl px-6 py-4"
+          >
+            <span className="font-display text-ink text-2xl uppercase">
+              {i === 0 ? "👑 " : ""}{p.name}
+            </span>
+            <span className="font-display text-ink text-2xl">{p.score}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
 function TVGameOver({ players }: { players: { id: string; name: string; score: number }[] }) {
   const sorted = [...players].sort((a, b) => b.score - a.score);
   return (
-    <TVScreen>
-      <div className="text-center w-full max-w-2xl px-8">
-        <p className="text-7xl mb-4">🏆</p>
-        <p className="text-gray-400 text-3xl mb-2">Game Over</p>
-        <p className="text-white text-6xl font-black mb-10">
-          <span className="text-yellow-400">{sorted[0]?.name}</span> wins!
-        </p>
-        <div className="space-y-3">
-          {sorted.map((p, i) => (
-            <div key={p.id} className="flex justify-between bg-gray-800 rounded-2xl px-6 py-4">
-              <span className="text-white text-2xl font-bold">
-                {["🥇", "🥈", "🥉"][i] ?? `${i + 1}.`} {p.name}
-              </span>
-              <span className="text-purple-400 text-2xl font-black">{p.score}</span>
-            </div>
-          ))}
-        </div>
+    <div className="min-h-screen bg-golden flex flex-col items-center justify-center p-12 gap-8">
+      <p className="font-display text-ink text-[10rem] leading-none text-center">GAME OVER</p>
+      <p className="font-banner text-ink text-5xl uppercase">
+        {sorted[0]?.name} wins!
+      </p>
+      <div className="grid grid-cols-2 gap-3 max-w-3xl w-full">
+        {sorted.map((p, i) => (
+          <div
+            key={p.id}
+            className="flex justify-between items-center bg-cream border-4 border-ink rounded-2xl px-6 py-4"
+          >
+            <span className="font-display text-ink text-2xl uppercase">
+              {["🥇", "🥈", "🥉"][i] ?? `${i + 1}.`} {p.name}
+            </span>
+            <span className="font-display text-ink text-2xl">{p.score}</span>
+          </div>
+        ))}
       </div>
-    </TVScreen>
-  );
-}
-
-function TVScreen({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-      {children}
     </div>
   );
 }

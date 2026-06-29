@@ -1,25 +1,27 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-bricolage);
+  /* Palette */
+  --color-ink: #14151A;
+  --color-cream: #F5F0E1;
+  --color-hotpink: #FF3D9A;
+  --color-electric: #2FD1F0;
+  --color-golden: #FFC83D;
+  --color-vermillion: #FF4426;
+
+  /* Fonts */
+  --font-sans: var(--font-rubik);
+  --font-display: var(--font-bungee);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Banner = Rubik Black — defined manually so weight is baked in */
+@utility font-banner {
+  font-family: var(--font-rubik), sans-serif;
+  font-weight: 900;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), sans-serif;
+  background: #14151A;
+  color: #F5F0E1;
+  font-family: var(--font-rubik), sans-serif;
 }

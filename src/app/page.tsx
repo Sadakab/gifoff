@@ -34,75 +34,90 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <h1 className="text-5xl font-black text-white text-center mb-2 tracking-tight">
-          GIF<span className="text-purple-400">POP</span>
-        </h1>
-        <p className="text-gray-400 text-center mb-10 text-sm">
-          The GIF party game
-        </p>
+    <main className="min-h-screen bg-ink flex items-center justify-center p-6">
+      <div className="w-full max-w-sm flex flex-col items-center gap-8">
 
-        {mode === "home" && (
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={() => setMode("create")}
-              className="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-2xl text-lg transition-colors"
-            >
-              Create Room
-            </button>
-            <button
-              onClick={() => setMode("join")}
-              className="w-full py-4 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-2xl text-lg transition-colors"
-            >
-              Join Room
-            </button>
-          </div>
-        )}
+        {/* Logo */}
+        <div className="text-center">
+          <h1 className="font-display text-cream text-7xl leading-none tracking-tight">
+            GIF<span className="font-display text-golden">POP</span>
+          </h1>
+          <p className="font-sans text-cream/50 text-sm mt-3 uppercase tracking-widest">
+            The GIF party game
+          </p>
+        </div>
 
-        {(mode === "create" || mode === "join") && (
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={() => setMode("home")}
-              className="text-gray-500 text-sm text-left hover:text-gray-300 transition-colors mb-1"
-            >
-              ← Back
-            </button>
+        {/* Card */}
+        <div className="w-full bg-cream border-4 border-ink rounded-2xl p-6">
+          {mode === "home" && (
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => setMode("create")}
+                className="w-full py-4 bg-hotpink border-4 border-ink text-ink font-display text-xl uppercase rounded-2xl transition-transform active:scale-95"
+              >
+                Create Room
+              </button>
+              <button
+                onClick={() => setMode("join")}
+                className="w-full py-4 bg-ink text-cream font-display text-xl uppercase rounded-2xl transition-transform active:scale-95"
+              >
+                Join Room
+              </button>
+            </div>
+          )}
 
-            <input
-              type="text"
-              placeholder="Your name"
-              maxLength={20}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full py-4 px-4 bg-gray-800 text-white rounded-2xl text-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              autoFocus
-            />
+          {(mode === "create" || mode === "join") && (
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => setMode("home")}
+                className="text-ink/50 text-sm text-left font-sans hover:text-ink transition-colors mb-1"
+              >
+                ← Back
+              </button>
 
-            {mode === "join" && (
               <input
                 type="text"
-                placeholder="Room code (e.g. A3BX)"
-                maxLength={4}
-                value={joinCode}
-                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                className="w-full py-4 px-4 bg-gray-800 text-white rounded-2xl text-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 uppercase tracking-widest"
+                placeholder="Your name"
+                maxLength={20}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    if (mode === "create") handleCreateRoom();
+                    else if (mode === "join" && joinCode.length >= 4) handleJoinRoom();
+                  }
+                }}
+                className="w-full py-4 px-4 bg-cream border-4 border-ink text-ink rounded-2xl text-lg font-sans placeholder-ink/30 focus:outline-none focus:border-hotpink"
+                autoFocus
               />
-            )}
 
-            <button
-              onClick={mode === "create" ? handleCreateRoom : handleJoinRoom}
-              disabled={!name.trim() || (mode === "join" && joinCode.length < 4)}
-              className="w-full py-4 bg-purple-600 hover:bg-purple-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-2xl text-lg transition-colors"
-            >
-              {mode === "create" ? "Create Room" : "Join Room"}
-            </button>
-          </div>
-        )}
+              {mode === "join" && (
+                <input
+                  type="text"
+                  placeholder="CODE"
+                  maxLength={4}
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && name.trim() && joinCode.length >= 4) handleJoinRoom();
+                  }}
+                  className="w-full py-4 px-4 bg-cream border-4 border-ink text-ink rounded-2xl text-3xl font-display uppercase tracking-widest text-center placeholder-ink/30 focus:outline-none focus:border-hotpink"
+                />
+              )}
 
-        <p className="text-center text-gray-600 text-xs mt-8">
-          Open the TV view at{" "}
-          <span className="text-gray-500 font-mono">/tv/[ROOM CODE]</span>
+              <button
+                onClick={mode === "create" ? handleCreateRoom : handleJoinRoom}
+                disabled={!name.trim() || (mode === "join" && joinCode.length < 4)}
+                className="w-full py-4 bg-hotpink border-4 border-ink text-ink font-display text-xl uppercase rounded-2xl transition-transform active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                {mode === "create" ? "Create Room" : "Join Room"}
+              </button>
+            </div>
+          )}
+        </div>
+
+        <p className="font-sans text-cream/20 text-xs uppercase tracking-widest">
+          gifpop.app
         </p>
       </div>
     </main>
