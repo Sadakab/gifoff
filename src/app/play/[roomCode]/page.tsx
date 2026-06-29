@@ -343,7 +343,7 @@ function RevealControlView({
         <p className="font-sans text-ink/50 text-xs uppercase tracking-widest mb-1">
           {shown > 0 ? `${shown} of ${totalSubmissions} revealed` : `${totalSubmissions} GIFs to reveal`}
         </p>
-        <p className="font-sans font-semibold text-ink text-lg leading-snug">{prompt}</p>
+        <p className="font-sans font-semibold text-ink text-2xl leading-snug">{prompt}</p>
       </div>
 
       {/* Tappable GIF card */}

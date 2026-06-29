@@ -250,18 +250,18 @@ function TVJudging({
       <p className="font-banner text-hotpink text-5xl uppercase text-center mb-2 leading-none">
         {judgeName} is choosing...
       </p>
-      <p className="font-sans text-cream/30 text-xl tracking-wider text-center mb-8">
+      <p className="font-sans font-semibold text-cream text-3xl text-center mb-8 max-w-4xl mx-auto leading-snug">
         {prompt}
       </p>
       <div className="flex-1 flex items-center justify-center">
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 max-w-6xl w-full">
+        <div className="grid grid-cols-3 gap-6 max-w-6xl w-full">
           {submissions.map((s, i) => (
             <div key={i} className="bg-cream border-4 border-ink rounded-2xl overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={s.gif.previewUrl}
+                src={s.gif.gifUrl}
                 alt="Submitted GIF"
-                className="w-full h-44 object-cover"
+                className="w-full aspect-square object-cover"
                 loading="lazy"
               />
             </div>
