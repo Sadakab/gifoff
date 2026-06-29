@@ -68,6 +68,7 @@ export default function PlayPage() {
       if (!state.round) return <LoadingScreen />;
       return isJudge ? (
         <RevealControlView
+          prompt={state.round.prompt}
           revealIndex={state.round.revealIndex}
           totalSubmissions={state.round.submissions.length}
           currentGif={state.round.submissions[state.round.revealIndex]?.gif ?? null}
@@ -320,11 +321,13 @@ function JudgeWaitView({
 }
 
 function RevealControlView({
+  prompt,
   revealIndex,
   totalSubmissions,
   currentGif,
   onNext,
 }: {
+  prompt: string;
   revealIndex: number;
   totalSubmissions: number;
   currentGif: GifRef | null;
@@ -337,42 +340,35 @@ function RevealControlView({
     <div className="min-h-screen bg-hotpink flex flex-col">
       {/* Header */}
       <div className="px-5 pt-6 pb-4 border-b-4 border-ink">
-        <p className="font-display text-ink text-sm uppercase tracking-widest">Judge controls</p>
-        <p className="font-sans text-ink/50 text-xs mt-1">
-          {shown > 0
-            ? `${shown} of ${totalSubmissions} revealed`
-            : `${totalSubmissions} GIFs to reveal`}
+        <p className="font-sans text-ink/50 text-xs uppercase tracking-widest mb-1">
+          {shown > 0 ? `${shown} of ${totalSubmissions} revealed` : `${totalSubmissions} GIFs to reveal`}
         </p>
+        <p className="font-sans font-semibold text-ink text-lg leading-snug">{prompt}</p>
       </div>
 
-      {/* GIF display */}
-      <div className="flex-1 flex items-center justify-center p-6">
-        {currentGif ? (
-          <div className="w-full max-w-xs bg-cream border-4 border-ink rounded-2xl overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={currentGif.gifUrl} alt="Current GIF" className="w-full" />
-          </div>
-        ) : (
-          <div className="w-full max-w-xs bg-ink/10 border-4 border-ink rounded-2xl p-12 text-center">
-            <p className="font-display text-ink text-lg uppercase">
-              Tap to reveal<br />first GIF
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Button */}
-      <div className="p-5 border-t-4 border-ink">
+      {/* Tappable GIF card */}
+      <div className="flex-1 flex flex-col items-center justify-center p-6 gap-4">
         <button
           onClick={onNext}
-          className="w-full py-4 bg-ink text-cream font-display text-xl uppercase rounded-2xl transition-transform active:scale-95"
+          className="w-full max-w-xs bg-cream border-4 border-ink rounded-2xl overflow-hidden transition-transform active:scale-95"
         >
-          {allShown
-            ? "Done — Judge Now →"
-            : shown > 0
-            ? "Next GIF →"
-            : "Reveal First GIF →"}
+          {currentGif ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={currentGif.gifUrl} alt="Current GIF" className="w-full aspect-square object-cover" />
+          ) : (
+            <div className="aspect-square flex items-center justify-center">
+              <p className="font-display text-ink text-lg uppercase text-center px-4">
+                Tap to reveal<br />first GIF
+              </p>
+            </div>
+          )}
         </button>
+
+        {allShown && (
+          <p className="font-sans text-ink/60 text-sm uppercase tracking-wider">
+            All revealed — tap to judge →
+          </p>
+        )}
       </div>
     </div>
   );
