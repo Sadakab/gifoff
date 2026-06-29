@@ -87,7 +87,7 @@ export default function HomePage() {
                     else if (mode === "join" && joinCode.length >= 4) handleJoinRoom();
                   }
                 }}
-                className="w-full py-4 px-4 bg-cream border-4 border-ink text-ink rounded-2xl text-lg font-sans placeholder-ink/30 focus:outline-none focus:border-hotpink"
+                className="w-full py-4 px-4 bg-cream border-4 border-ink text-ink rounded-2xl text-lg font-sans placeholder-ink/30 focus:outline-none focus:bg-golden"
                 autoFocus
               />
 
@@ -101,7 +101,7 @@ export default function HomePage() {
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && name.trim() && joinCode.length >= 4) handleJoinRoom();
                   }}
-                  className="w-full py-4 px-4 bg-cream border-4 border-ink text-ink rounded-2xl text-3xl font-display uppercase tracking-widest text-center placeholder-ink/30 focus:outline-none focus:border-hotpink"
+                  className="w-full py-4 px-4 bg-cream border-4 border-ink text-ink rounded-2xl text-3xl font-display uppercase tracking-widest text-center placeholder-ink/30 focus:outline-none focus:bg-golden"
                 />
               )}
 
