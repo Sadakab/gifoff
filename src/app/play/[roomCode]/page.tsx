@@ -252,7 +252,7 @@ function HandView({
       {/* Prompt banner */}
       <div className="bg-hotpink border-b-4 border-ink px-5 py-5">
         <p className="font-sans text-ink/60 text-xs uppercase tracking-widest mb-1">The prompt</p>
-        <p className="font-banner text-ink text-2xl leading-tight uppercase">{prompt}</p>
+        <p className="font-sans font-semibold text-ink text-2xl leading-tight">{prompt}</p>
       </div>
 
       {/* Hand */}
@@ -307,7 +307,7 @@ function JudgeWaitView({
         </p>
         <div className="bg-cream border-4 border-ink rounded-2xl p-5 mb-6">
           <p className="font-sans text-ink/50 text-xs uppercase tracking-wider mb-2">The prompt</p>
-          <p className="font-banner text-ink text-xl uppercase leading-snug">{prompt}</p>
+          <p className="font-sans font-semibold text-ink text-xl leading-snug">{prompt}</p>
         </div>
         <div className="text-center">
           <span className="font-display text-ink text-5xl">{submittedCount}</span>

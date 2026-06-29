@@ -166,7 +166,7 @@ function TVSubmitting({
           Round {roundNumber}/{totalRounds} · Judge:{" "}
           <span className="font-display text-ink">{judgeName}</span>
         </p>
-        <p className="font-banner text-ink text-7xl leading-tight uppercase text-center max-w-5xl">
+        <p className="font-sans font-semibold text-ink text-7xl leading-tight text-center max-w-5xl">
           {prompt}
         </p>
       </div>
@@ -209,7 +209,7 @@ function TVRevealing({
 
   return (
     <div className="min-h-screen bg-ink flex flex-col items-center justify-center gap-8 p-12">
-      <p className="font-banner text-cream text-4xl uppercase text-center max-w-4xl leading-snug">
+      <p className="font-sans font-semibold text-cream text-4xl text-center max-w-4xl leading-snug">
         {prompt}
       </p>
 
@@ -250,7 +250,7 @@ function TVJudging({
       <p className="font-banner text-hotpink text-5xl uppercase text-center mb-2 leading-none">
         {judgeName} is choosing...
       </p>
-      <p className="font-sans text-cream/30 text-xl uppercase tracking-wider text-center mb-8">
+      <p className="font-sans text-cream/30 text-xl tracking-wider text-center mb-8">
         {prompt}
       </p>
       <div className="flex-1 flex items-center justify-center">
