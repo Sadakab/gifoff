@@ -246,27 +246,27 @@ function TVJudging({
   judgeName: string;
 }) {
   return (
-    <div className="min-h-screen bg-ink flex flex-col p-8">
-      <div className="text-center mb-6">
-        <p className="font-sans font-semibold text-cream text-7xl leading-tight mb-2">
-          {prompt}
-        </p>
-        <p className="font-banner text-hotpink text-3xl uppercase leading-none">
-          {judgeName} is choosing...
-        </p>
-      </div>
-      <div className="flex-1 grid grid-cols-3 gap-6">
-        {submissions.map((s, i) => (
-          <div key={i} className="bg-cream border-4 border-ink rounded-2xl overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={s.gif.gifUrl}
-              alt="Submitted GIF"
-              className="w-full h-[32vh] object-cover"
-              loading="lazy"
-            />
-          </div>
-        ))}
+    <div className="min-h-screen bg-ink flex flex-col p-12">
+      <p className="font-banner text-hotpink text-5xl uppercase text-center mb-2 leading-none">
+        {judgeName} is choosing...
+      </p>
+      <p className="font-sans font-semibold text-cream text-3xl text-center mb-8 max-w-4xl mx-auto leading-snug">
+        {prompt}
+      </p>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="grid grid-cols-3 gap-6 max-w-6xl w-full">
+          {submissions.map((s, i) => (
+            <div key={i} className="bg-cream border-4 border-ink rounded-2xl overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={s.gif.gifUrl}
+                alt="Submitted GIF"
+                className="w-full aspect-square object-cover"
+                loading="lazy"
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
