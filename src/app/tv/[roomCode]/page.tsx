@@ -257,9 +257,9 @@ function TVJudging({
         {prompt}
       </p>
       <div className="flex-1 flex items-center justify-center">
-        <div className="grid grid-cols-3 gap-6 max-w-6xl w-full">
+        <div className="flex flex-wrap justify-center gap-6 max-w-6xl w-full">
           {submissions.map((s, i) => (
-            <div key={i} className="bg-cream border-4 border-ink rounded-2xl overflow-hidden">
+            <div key={i} className="bg-cream border-4 border-ink rounded-2xl overflow-hidden w-[30%]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={s.gif.gifUrl}
