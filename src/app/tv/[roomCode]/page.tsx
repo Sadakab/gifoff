@@ -100,7 +100,7 @@ function TVLobby({
   return (
     <TVScreen>
       <div className="text-center">
-        <p className="text-gray-400 text-2xl mb-2">Join at gifoff.app • room code</p>
+        <p className="text-gray-400 text-2xl mb-2">Join at gifpop.app • room code</p>
         <div className="text-[12rem] font-black text-white leading-none tracking-widest mb-12">
           {roomCode}
         </div>

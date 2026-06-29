@@ -37,7 +37,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <h1 className="text-5xl font-black text-white text-center mb-2 tracking-tight">
-          GIF<span className="text-purple-400">OFF</span>
+          GIF<span className="text-purple-400">POP</span>
         </h1>
         <p className="text-gray-400 text-center mb-10 text-sm">
           The GIF party game

@@ -8,7 +8,7 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "GIFOFF",
+  title: "GIFPOP",
   description: "The GIF party game",
 };
 

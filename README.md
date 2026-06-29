@@ -1,4 +1,4 @@
-# GifOff
+# GifPop
 
 Jackbox-style GIF party game. Players join on their phones, submit GIFs to match a prompt, and a rotating judge picks the winner.
 
