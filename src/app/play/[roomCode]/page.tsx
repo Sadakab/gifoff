@@ -337,7 +337,7 @@ function RevealControlView({
   const allShown = shown >= totalSubmissions;
 
   return (
-    <div className="min-h-screen bg-hotpink flex flex-col">
+    <div className="min-h-screen bg-hotpink relative">
       {/* Header */}
       <div className="px-5 pt-6 pb-4 border-b-4 border-ink">
         <p className="font-sans text-ink/50 text-xs uppercase tracking-widest mb-1">
@@ -346,30 +346,28 @@ function RevealControlView({
         <p className="font-sans font-semibold text-ink text-2xl leading-snug">{prompt}</p>
       </div>
 
-      {/* Tappable GIF card */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 gap-4">
-        <button
-          onClick={onNext}
-          className="w-full max-w-xs bg-cream border-4 border-ink rounded-2xl overflow-hidden transition-transform active:scale-95"
-        >
-          {currentGif ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={currentGif.gifUrl} alt="Current GIF" className="w-full aspect-square object-cover" />
-          ) : (
-            <div className="aspect-square flex items-center justify-center">
-              <p className="font-display text-ink text-lg uppercase text-center px-4">
-                Tap to reveal<br />first GIF
-              </p>
-            </div>
-          )}
-        </button>
-
-        {allShown && (
-          <p className="font-sans text-ink/60 text-sm uppercase tracking-wider">
-            All revealed — tap to judge →
-          </p>
+      {/* GIF card fixed to screen centre */}
+      <button
+        onClick={onNext}
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 max-w-sm bg-cream border-4 border-ink rounded-2xl overflow-hidden transition-transform active:scale-95 z-10"
+      >
+        {currentGif ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={currentGif.gifUrl} alt="Current GIF" className="w-full aspect-square object-cover" />
+        ) : (
+          <div className="aspect-square flex items-center justify-center">
+            <p className="font-display text-ink text-lg uppercase text-center px-4">
+              Tap to reveal<br />first GIF
+            </p>
+          </div>
         )}
-      </div>
+      </button>
+
+      {allShown && (
+        <p className="fixed bottom-8 left-0 right-0 text-center font-sans text-ink/60 text-sm uppercase tracking-wider">
+          All revealed — tap to judge →
+        </p>
+      )}
     </div>
   );
 }
